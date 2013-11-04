@@ -31,6 +31,9 @@ module Finance
     # @return [Array] the interest rates used for calculating the amortization
     # @api public
     attr_reader :rates
+    # @return [Float] the degree of amortization from 0.0=none (interest only) to 1.0=full (fully amortizing)
+    # @api public
+    attr_reader :degree
 
     # compare two Amortization instances
     # @return [Numeric] -1, 0, or +1
@@ -129,9 +132,10 @@ module Finance
     # @param [Rate] rates the applicable interest rates
     # @param [Proc] block
     # @api public
-    def initialize(principal, *rates, &block)
+    def initialize(principal, *rates, degree=1.0, &block)
       @principal = Flt::DecNum.new(principal.to_s)
       @rates     = rates
+      @degree    = degree
       @block     = block
 
       # compute the total duration from all of the rates.
@@ -172,7 +176,10 @@ module Finance
     # @see http://en.wikipedia.org/wiki/Amortization_calculator
     # @api public
     def Amortization.payment(principal, rate, periods)
-      -(principal * (rate + (rate / ((1 + rate) ** periods - 1)))).round(2)
+      interest_only = -(principal * rate).round(2)
+      full_amortization = -(principal * (rate + (rate / ((1 + rate) ** periods - 1)))).round(2)
+
+      interest_only + degree * (full_amortization - interest_only)
     end
 
     # @return [Array] the amount of the payment in each period
