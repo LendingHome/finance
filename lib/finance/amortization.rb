@@ -129,6 +129,7 @@ module Finance
     # create a new Amortization instance
     # @return [Amortization]
     # @param [DecNum] principal the initial amount of the loan or investment
+    # @param [Float] degree the amortization from 0.0=none (interest only) to 1.0=full (fully amortizing)
     # @param [Rate] rates the applicable interest rates
     # @param [Proc] block
     # @api public
@@ -176,6 +177,7 @@ module Finance
 
     # @return [DecNum] the periodic payment due on a loan
     # @param [DecNum] principal the initial amount of the loan or investment
+    # @param [Float] degree the amortization from 0.0=none (interest only) to 1.0=full (fully amortizing)
     # @param [Rate] rate the applicable interest rate (per period)
     # @param [Integer] periods the number of periods needed for repayment
     # @note in most cases, you will probably want to use rate.monthly when calling this function outside of an Amortization instance.
