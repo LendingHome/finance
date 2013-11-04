@@ -62,7 +62,7 @@ module Finance
       # period is the remaining number of periods in the loan, not
       # necessarily the duration of the rate itself.
       periods = @periods - @period
-      amount = Amortization.payment @balance, @degree, rate.monthly, periods
+      amount = self.class.payment @balance, @degree, rate.monthly, periods
 
       pmt = Payment.new(amount, :period => @period)
       if @block then pmt.modify(&@block) end
@@ -164,6 +164,16 @@ module Finance
       @transactions.find_all(&:interest?).collect{ |p| p.amount }
     end
 
+    # @return [Array] the amount of the payment in each period
+    # @example find the total payments for a loan
+    #   rate = Rate.new(0.0375, :apr, :duration => (30 * 12))
+    #   amt = 300000.amortize(rate)
+    #   amt.payments.sum #=> DecNum('-500163.94')
+    # @api public
+    def payments
+      @transactions.find_all(&:payment?).collect{ |p| p.amount }
+    end
+
     # @return [DecNum] the periodic payment due on a loan
     # @param [DecNum] principal the initial amount of the loan or investment
     # @param [Rate] rate the applicable interest rate (per period)
@@ -175,21 +185,11 @@ module Finance
     #   Amortization.payment(200000, rate.monthly, rate.duration) #=> DecNum('-926.23')
     # @see http://en.wikipedia.org/wiki/Amortization_calculator
     # @api public
-    def Amortization.payment(principal, degree, rate, periods)
+    def self.payment(principal, degree, rate, periods)
       interest_only = -(principal * rate).round(2)
       full_amortization = -(principal * (rate + (rate / ((1 + rate) ** periods - 1)))).round(2)
 
       interest_only + degree * (full_amortization - interest_only)
-    end
-
-    # @return [Array] the amount of the payment in each period
-    # @example find the total payments for a loan
-    #   rate = Rate.new(0.0375, :apr, :duration => (30 * 12))
-    #   amt = 300000.amortize(rate)
-    #   amt.payments.sum #=> DecNum('-500163.94')
-    # @api public
-    def payments
-      @transactions.find_all(&:payment?).collect{ |p| p.amount }
     end
   end
 end
