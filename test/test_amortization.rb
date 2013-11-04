@@ -11,7 +11,7 @@ describe "Amortization" do
     before(:all) do
       @rate = Rate.new(0.0375, :apr, :duration => (30 * 12))
       @principal = D(200000)
-      @std = Amortization.new(@principal, @rate)
+      @std = Amortization.new(@principal, 1.0, @rate)
     end
 
     it "should have a principal of $200,000" do
@@ -56,7 +56,7 @@ describe "Amortization" do
         @rates << Rate.new(0.0375 + (D('0.01') * adj), :apr, :duration => (3 * 12))
       end
       @principal = D(200000)
-      @arm = Amortization.new(@principal, *@rates)
+      @arm = Amortization.new(@principal, 1.0, *@rates)
     end
 
     it "should have a principal of $200,000" do
@@ -110,7 +110,7 @@ describe "Amortization" do
     before(:all) do
       @rate = Rate.new(0.0375, :apr, :duration => (30 * 12))
       @principal = D(200000)
-      @exp = Amortization.new(@principal, @rate){ |period| period.payment - 100 }
+      @exp = Amortization.new(@principal, 1.0, @rate){ |period| period.payment - 100 }
     end
 
     it "should have a principal of $200,000" do
@@ -151,14 +151,14 @@ describe "Numeric Method" do
   it 'works with simple invocation' do
     rate = Rate.new(0.0375, :apr, :duration => (30 * 12))
     amt_method = 300000.amortize(rate)
-    amt_class  = Amortization.new(300000, rate)
+    amt_class  = Amortization.new(300000, 1.0, rate)
     assert_equal amt_method, amt_class
   end
 
   it 'works with block invocation' do
     rate = Rate.new(0.0375, :apr, :duration => (30 * 12))
     amt_method = 300000.amortize(rate){ |period| period.payment-300 }
-    amt_class  = Amortization.new(300000, rate){ |period| period.payment-300 }
+    amt_class  = Amortization.new(300000, 1.0, rate){ |period| period.payment-300 }
     assert_equal amt_method, amt_class
   end
 end
