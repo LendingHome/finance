@@ -132,7 +132,7 @@ module Finance
     # @param [Rate] rates the applicable interest rates
     # @param [Proc] block
     # @api public
-    def initialize(principal, rates, degree, &block)
+    def initialize(principal, degree, *rates, &block)
       @principal = Flt::DecNum.new(principal.to_s)
       @degree    = degree
       @rates     = rates
@@ -197,7 +197,7 @@ end
 class Numeric
   # @see Amortization#new
   # @api public
-  def amortize(rates, degree, &block)
-    Finance::Amortization.new(self, rates, degree, &block)
+  def amortize(degree, *rates, &block)
+    Finance::Amortization.new(self, degree, *rates, &block)
   end
 end
