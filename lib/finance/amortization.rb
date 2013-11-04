@@ -62,7 +62,7 @@ module Finance
       # period is the remaining number of periods in the loan, not
       # necessarily the duration of the rate itself.
       periods = @periods - @period
-      amount = Amortization.payment @balance, rate.monthly, periods
+      amount = Amortization.payment @balance, @degree, rate.monthly, periods
 
       pmt = Payment.new(amount, :period => @period)
       if @block then pmt.modify(&@block) end
@@ -175,7 +175,7 @@ module Finance
     #   Amortization.payment(200000, rate.monthly, rate.duration) #=> DecNum('-926.23')
     # @see http://en.wikipedia.org/wiki/Amortization_calculator
     # @api public
-    def Amortization.payment(principal, rate, periods)
+    def Amortization.payment(principal, degree, rate, periods)
       interest_only = -(principal * rate).round(2)
       full_amortization = -(principal * (rate + (rate / ((1 + rate) ** periods - 1)))).round(2)
 
